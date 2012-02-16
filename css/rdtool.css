@@ -1,0 +1,297 @@
+@charset: utf-8;
+/*
+Copyright(C) 2011 Youhei SASAKI All rights reserved.
+Author: Youhei SASAKI <uwabami@gfd-dennou.org>
+
+Permission is hereby granted, free of charge, to any person obtaining
+a copy of this software and associated documentation files (the
+"Software"), to deal in the Software without restriction, including
+without limitation the rights to use, copy, modify, merge, publish,
+distribute, sublicense, and/or sell copies of the Software, and to
+permit persons to whom the Software is furnished to do so, subject to
+the following conditions:
+
+The above copyright notice and this permission notice shall be
+included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+Code:
+*/
+
+
+a:link{
+  color: #00f;
+  text-decoration: none;
+}
+a:visited{
+  color: #00f;
+  text-decoration: none;
+}
+a:hover{
+  color: #f00;
+  text-decoration: underline;
+}
+a:active{
+  color: #0ff;
+  text-decoration: underline;
+}
+
+body {
+    background: #eee;
+}
+
+#header, #nav, #main, #main article, #sidebar, #footer {
+    margin: 10px;
+    padding: 5px;
+    /* text-align: center; */
+}
+
+/* header settings */
+#header {
+    /* background-color: rgba(255, 0, 0, 0.125); */
+    min-width: 600px;
+    text-align: left;
+    margin-top: 0px;
+}
+#header p{
+    font-size: small;
+}
+
+/* nav */
+#nav {
+    padding: 0pt;
+    border: 0pt;
+    margin: 0pt;
+}
+#nav p{
+    display: inline;
+}
+
+h1 {
+  font-family: "Time New Roman", Times, sans-serif;
+  text-align: center;
+  border-top: #9999FF 4px solid;
+  border-bottom: #9999FF 4px solid;
+  /* margin: 2.5px auto; */
+  /* line-height: 100%; */
+}
+
+h1.title{
+    font-size: 200%;
+}
+h1 span.separator
+{
+    display: none;
+}
+h1 span.description {
+    /* display: none; */
+    /* font-size: 50%; */
+}
+/* main contents */
+#container {
+    display: -webkit-box;
+    display: -moz-box;
+    display: -o-box;
+    display: box;
+    -webkit-box-pack: center;
+    -moz-box-pack: center;
+    box-pack: center;
+    width: 100%;
+    min-width: 600px;
+    min-height: 450px;
+}
+
+#main {
+    /* 枠 */
+    /* border: 1px solid black; */
+    /* border-radius: 5px; */
+    /* 背景 */
+    background-color: rgba(255, 255, 255, 0.5);
+    /* サイズ */
+    -webkit-box-flex: 1;
+    -moz-box-flex: 1;
+    box-flex: 1;
+    -moz-width: 800px;
+    min-width: 400px;
+    /* /\* main と sidebar の入れ替え *\/ */
+    -webkit-box-ordinal-group: 2;
+    -moz-box-ordinal-group: 2;
+    -o-box-ordinal-group: 2;
+    box-ordinal-group: 2;
+    text-height: 140%;
+}
+/* sidebar */
+#sidebar {
+    width: 250px;
+    /* background-color: rgba(0, 255, 0, 0.125); */
+    /* main と sidebar の入れ替え */
+    -webkit-box-ordinal-group: 1;
+    -moz-box-ordinal-group: 1;
+    -o-box-ordinal-group: 1;
+    box-ordinal-group: 1;
+}
+
+/* footer */
+#footer {
+    min-width: 600px;
+    border-top: #9999FF 4px solid;
+    border-bottom: #9999FF 4px solid;
+    /* background-color: rgba(0, 0, 255, 0.125); */
+    text-indent: 5px;
+    margin-bottom: 0px;
+}
+
+#footer p {
+    font-size: small;
+}
+
+/* top slideshow */
+#slideshow{
+    height: 340px;
+    width: 480px;
+    margin: auto
+}
+
+ul {
+  margin-left: 1.5em;
+  padding: 0;
+}
+
+
+h2, h3, h4, h5, h6 {
+  font-family: "Time New Roman", Times, sans-serif;
+}
+
+h2 {
+  border-bottom: #0099ff 2px solid;
+  margin-right: 30%;
+}
+
+h3 {
+  color: #003366;
+  border-bottom: #000066 1px solid;
+  margin-right: 35%;
+  margin-top:2ex;
+  margin-bottom:0ex;
+  margin-left: 0.5em;
+}
+
+/* h4 { */
+/*   margin-left: 1.0em; */
+/* } */
+
+/* ul ul { */
+/*   margin-left: 1em; */
+/*   padding: 0; */
+/* } */
+
+/* /\* ul ol { *\/ */
+/* /\*   margin-left: 2.0em; *\/ */
+/* /\*   padding: 0; *\/ */
+/* /\* } *\/ */
+
+/* /\* ol { *\/ */
+/* /\*   margin-left: 3.5em; *\/ */
+/* /\*   padding: 0; *\/ */
+/* /\* } *\/ */
+
+/* /\* ol ol { *\/ */
+/* /\*   margin-left: 2.0em; *\/ */
+/* /\*   padding: 0; *\/ */
+/* /\* } *\/ */
+
+/* /\* ol ul { *\/ */
+/* /\*   margin-left: 1.5em; *\/ */
+/* /\*   padding: 0; *\/ */
+/* /\* } *\/ */
+
+/* /\* li { *\/ */
+/* /\*   line-height: 150%; *\/ */
+/* /\* } *\/ */
+
+
+dt {
+  font-weight: bold;
+  margin-top: 2ex;
+  margin-left: 1em;
+}
+
+/* #main p { */
+/*     text-indent: 1em; */
+/* } */
+
+/* /\* ul p { *\/ */
+/* /\*   margin-left: 0em; *\/ */
+/* /\*   padding: 0; *\/ */
+/* /\* } *\/ */
+
+/* /\* ol p { *\/ */
+/* /\*   margin-left: 0em; *\/ */
+/* /\*   padding: 0; *\/ */
+/* /\* } *\/ */
+
+/* /\* code { *\/ */
+/* /\*   padding-right: 0.5em; *\/ */
+/* /\*   padding-top: 0.3em; *\/ */
+/* /\*   padding-left: 0.5em; *\/ */
+/* /\*   padding-bottom: 0.3em; *\/ */
+/* /\*   // background-color: #3e3e3e; *\/ */
+/* /\*   // color: #e6e6e6; *\/ */
+/* /\*   // text-decoration: underline; *\/ */
+/* /\*   border-top: #9999FF 1px solid; *\/ */
+/* /\*   border-bottom: #9999FF 1px solid; *\/ */
+/* /\*   border-left: #9999FF 1px solid; *\/ */
+/* /\*   border-right: #9999FF 1px solid; *\/ */
+/* /\* } *\/ */
+
+/* /\* ol.rd2html_hindex { *\/ */
+/* /\*   font-size: 80%; *\/ */
+/* /\*   list-style-type: decimal; *\/ */
+/* /\*   margin-left: 5ex; *\/ */
+/* /\*   margin-right: 0ex; *\/ */
+/* /\*   margin-top: 0ex; *\/ */
+/* /\*   margin-bottom: 0ex; *\/ */
+/* /\*   line-height: 100%; *\/ */
+/* /\* } *\/ */
+
+/* /\* ol.rd2html_hindex ul { *\/ */
+/* /\*   font-size: 100%; *\/ */
+/* /\*   list-style-type: decimal; *\/ */
+/* /\*   margin-left: 3ex; *\/ */
+/* /\*   margin-right: 0ex; *\/ */
+/* /\*   margin-top: 0ex; *\/ */
+/* /\*   margin-bottom: 0ex; *\/ */
+/* /\*   line-height: 100%; *\/ */
+/* /\* } *\/ */
+
+/* /\* em { *\/ */
+/* /\*   color: #004080; *\/ */
+/* /\*   font-family: arial, helvetica, Sans-Serif, gothic; *\/ */
+/* /\*   font-style: normal; *\/ */
+/* /\*   font-variant: normal; *\/ */
+/* /\*   font-weight: bold; *\/ */
+/* /\* } *\/ */
+
+/* /\* pre { *\/ */
+/* /\*   line-height: 100%; *\/ */
+/* /\*   border-right: #646464 1px solid; *\/ */
+/* /\*   padding-right: 0.5em; *\/ */
+/* /\*   border-top: #646464 1px solid; *\/ */
+/* /\*   padding-top: 0.5em; *\/ */
+/* /\*   border-left: #646464 1px solid; *\/ */
+/* /\*   padding-left: 0.5em; *\/ */
+/* /\*   border-bottom: #646464 1px solid; *\/ */
+/* /\*   padding-bottom: 0.5em; *\/ */
+/* /\*   margin-left: 2em; *\/ */
+/* /\*   margin-right: 2em; *\/ */
+/* /\*   white-space: pre; *\/ */
+/* /\*   background-color: #e6e6e6; *\/ */
+/* /\*   color: black; *\/ */
+/* /\* } *\/ */
