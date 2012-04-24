@@ -51,4 +51,4 @@ If you find bugs, comments, ... Please report [github issues](https://github.com
 
 Contact
 -------
-Current maintainer: [Youhei SASAKI](uwabami@gfd-dennou.org)
+Current maintainer: [Youhei SASAKI (uwabami@gfd-dennou.org)](mailto:uwabami@gfd-dennou.org)
