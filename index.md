@@ -6,6 +6,8 @@ title: RDtool
 What's rdtool?
 --------------
 
+[![Build Status](https://travis-ci.org/uwabami/rdtool.png?branch=master)](https:/travis-ci.org/uwabami/rdtool)
+
 RD is Ruby's POD. RDtool is formatter for RD.
 
 RD is multipurpose documentation format created for documentating Ruby and output of Ruby world. You can embed RD into Ruby script. And RD have neat syntax which help you to read document in Ruby script. On the other hand, RD have a feature for class reference.
