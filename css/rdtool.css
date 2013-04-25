@@ -103,7 +103,7 @@ h1 span.description {
     -webkit-box-pack: center;
     -moz-box-pack: center;
     box-pack: center;
-    width: 90%;
+    width: 100%;
     min-width: 600px;
     min-height: 450px;
 }
