@@ -17,8 +17,8 @@ Download
 
 ### Stable: Gem and tar.gz is available:
 
-* [rdtool-0.6.37.tar.gz](pkg/rdtool-0.6.37.tar.gz)
-* [rdtool-0.6.37.gem](pkg/rdtool-0.6.37.gem) or get from [rubygems.org/gems/rdtool](http://rubygems.org/gems/rdtool/)
+* [rdtool-0.6.38.tar.gz](pkg/rdtool-0.6.38.tar.gz)
+* [rdtool-0.6.38.gem](pkg/rdtool-0.6.38.gem) or get from [rubygems.org/gems/rdtool](http://rubygems.org/gems/rdtool/)
 
 ### HEAD: GitHub: [uwabami/rdtool](https://github.com/uwabami/rdtool/)
 
