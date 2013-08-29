@@ -1,6 +1,6 @@
 ---
 layout: default
-title: RDtool
+title: RDtool -- RD formatter
 ---
 
 What's rdtool?
