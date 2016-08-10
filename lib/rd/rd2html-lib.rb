@@ -6,7 +6,44 @@ require 'rd/rdvisitor'
 require 'rd/version'
 
 module RD
+  module HTMLTag
+    def tag(name, **attrs)
+      "#{tag_open name, **attrs}#{block_given? ? yield : ''}#{tag_close name}"
+    end
+
+    def tag_block(name, **attrs)
+      inner = yield().flatten.compact.join("\n").chomp
+      [tag_open(name, **attrs), inner, tag_close(name)].join("\n")
+    end
+
+    def tag_single(name, **attrs)
+      tag_open name, ' />', **attrs
+    end
+
+    def tag_open(name, suffix = '>', **attrs)
+      name = tag_name(name)
+      if attrs.empty?
+        "<#{name}#{suffix}"
+      else
+        "<#{name} #{tag_attrs(**attrs)}#{suffix}"
+      end
+    end
+
+    def tag_close(name)
+      "</#{tag_name name}>"
+    end
+
+    def tag_attrs(**pairs)
+      pairs.map{|k, v| %Q`#{tag_name k}="#{v}"` }.join(' ')
+    end
+
+    def tag_name(raw_name)
+      raw_name.to_s.tr('_', '-').downcase.intern
+    end
+  end
+
   class RD2HTMLVisitor < RDVisitor
+    include HTMLTag
     include MethodParse
 
     SYSTEM_NAME = "RDtool -- RD2HTMLVisitor"
@@ -66,7 +103,7 @@ module RD
        html_open_tag(),
        html_head(),
        html_body(content),
-       "</html>", ''].join("\n")
+       tag_close(:html), ''].join("\n")
     end
 
     private
@@ -96,54 +133,55 @@ module RD
     end
 
     def html_open_tag
-      buf = ['html', 'xmlns="http://www.w3.org/1999/xhtml"']
+      attrs = {xmlns: 'http://www.w3.org/1999/xhtml'}
       if @lang
-        buf.push %Q`lang="#{@lang}"`, %Q`xml:lang="#{@lang}"`
+        attrs[:lang] = @lang
+        attrs[:"xml:lang"] = @lang
       end
-      "<#{buf.join ' '}>"
+      tag_open :html, **attrs
     end
 
     def html_head
-      ['<head>',
+      [tag_open(:head),
        html_content_type(),
        html_title(),
        link_to_css(),
        forward_links(),
        backward_links(),
-       '</head>'].compact.join("\n")
+       tag_close(:head)].compact.join("\n")
     end
 
     def html_content_type
       return nil unless @charset
-      %Q`<meta http-equiv="Content-type" content="text/html; charset=#{@charset}" />`
+      tag_single :meta, http_equiv: 'Content-type', content: "text/html; charset=#{@charset}"
     end
 
     def html_title
-      "<title>#{document_title()}</title>"
+      tag(:title){ document_title() }
     end
 
     def link_to_css
       return nil unless @css
-      %Q`<link href="#{@css}" type="text/css" rel="stylesheet" />`
+      tag_single :link, href: @css, type: 'text/css', rel: 'stylesheet'
     end
 
     def forward_links
-      header_links @html_link_rel, 'rel'
+      header_links @html_link_rel, :rel
     end
 
     def backward_links
-      header_links @html_link_rev, 'rev'
+      header_links @html_link_rev, :rev
     end
 
     def header_links(list, attr)
       return nil if list.empty?
       list.sort_by(&:first).map{|val, href|
-	%Q`<link href="#{href}" #{attr}="#{val}" />`
+        tag_single :link, :href => href, attr => val
       }.join("\n")
     end
 
     def html_body(contents)
-      ['<body>', *contents, make_foottext(), '</body>'].compact.join("\n")
+      tag_block(:body){ [contents, make_foottext()] }
     end
 
     public
@@ -152,18 +190,17 @@ module RD
       anchor = get_anchor(element)
       label = hyphen_escape(element.label)
       title = title.join("")
-      ["<h#{element.level}>",
-       %Q`<a name="#{anchor}" id="#{anchor}">#{title}</a>`,
-       "</h#{element.level}>",
-       %Q`<!-- RDLabel: "#{label}" -->`].join
+      tag("h#{element.level}"){
+        tag(:a, name: anchor, id: anchor){ title }
+      } + %Q`<!-- RDLabel: "#{label}" -->`
     end
 
     def apply_to_TextBlock(element, content)
-      content = content.join("").chomp
+      content = content.join.chomp
       if ptag_omittable_about_first_textblock_of_listitem?(element)
 	content
       else
-	%Q`<p>#{content}</p>`
+        tag(:p){ content }
       end
     end
 
@@ -189,35 +226,35 @@ module RD
     public
 
     def apply_to_Verbatim(element)
-      content = []
-      element.each_line do |i|
-	content.push(apply_to_String(i))
-      end
-      %Q[<pre>#{content.join("").chomp}</pre>]
+      tag(:pre){
+        element.enum_for(:each_line).map{|line|
+          apply_to_String line
+        }.join.chomp
+      }
     end
 
     def apply_to_ItemList(element, items)
-      %Q[<ul>\n#{items.join("\n").chomp}\n</ul>]
+      tag_block(:ul){ items }
     end
 
     def apply_to_EnumList(element, items)
-      %Q[<ol>\n#{items.join("\n").chomp}\n</ol>]
+      tag_block(:ol){ items }
     end
 
     def apply_to_DescList(element, items)
-      %Q[<dl>\n#{items.join("\n").chomp}\n</dl>]
+      tag_block(:dl){ items }
     end
 
     def apply_to_MethodList(element, items)
-      %Q[<dl>\n#{items.join("\n").chomp}\n</dl>]
+      tag_block(:dl){ items }
     end
 
     def apply_to_ItemListItem(element, content)
-      %Q[<li>#{content.join("\n").chomp}</li>]
+      tag(:li){ content.join("\n").chomp }
     end
 
     def apply_to_EnumListItem(element, content)
-      %Q[<li>#{content.join("\n").chomp}</li>]
+      tag(:li){ content.join("\n").chomp }
     end
 
     def apply_to_DescListItem(element, term, description)
@@ -249,23 +286,23 @@ module RD
     end
 
     def apply_to_StringElement(element)
-      apply_to_String(element.content)
+      apply_to_String element.content
     end
 
     def apply_to_Emphasis(element, content)
-      %Q[<em>#{content.join("")}</em>]
+      tag(:em){ content.join }
     end
 
     def apply_to_Code(element, content)
-      %Q[<code>#{content.join("")}</code>]
+      tag(:code){ content.join }
     end
 
     def apply_to_Var(element, content)
-      %Q[<var>#{content.join("")}</var>]
+      tag(:var){ content.join }
     end
 
     def apply_to_Keyboard(element, content)
-      %Q[<kbd>#{content.join("")}</kbd>]
+      tag(:kbd){ content.join }
     end
 
     def apply_to_Index(element, content)
@@ -368,18 +405,18 @@ module RD
     end
 
     def apply_to_Verb(element)
-      content = apply_to_String(element.content)
-      %Q[#{content}]
+      apply_to_String element.content
     end
-
-    def sp2nbsp(str)
-      str.gsub(/\s/, "&nbsp;")
-    end
-    private :sp2nbsp
 
     def apply_to_String(element)
-      meta_char_escape(element)
+      meta_char_escape element
     end
+
+    def hyphen_escape(str)
+      str.gsub /--/, "&shy;&shy;"
+    end
+
+    private
 
     def parse_method(method)
       klass, kind, method, args = MethodParse.analize_method(method)
@@ -417,17 +454,9 @@ module RD
 	"#{klass}#{kind}#{method}#{args}"
       end
     end
-    private :parse_method
 
     def meta_char_escape(str)
-      str.gsub(/[<>&]/) {
-	METACHAR[$&]
-      }
-    end
-    private :meta_char_escape
-
-    def hyphen_escape(str)
-      str.gsub(/--/, "&shy;&shy;")
+      str.gsub /[<>&]/, METACHAR
     end
 
     def make_foottext
@@ -438,12 +467,10 @@ module RD
       end
       %|<hr />\n<p class="foottext">\n#{content.join("\n")}\n</p>|
     end
-    private :make_foottext
 
     def a_name(prefix, num)
       "#{prefix}-#{num}"
     end
-    private :a_name
   end
 end
 
