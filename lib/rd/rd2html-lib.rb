@@ -1,10 +1,9 @@
-=begin
-= rd2html-lib.rb
-=end
+# RD to HTML translate library for rdfmt.rb
+# $Id: rd2html-lib.rb,v 1.53 2003/03/08 12:45:08 tosh Exp $
 
-require "cgi"
-require "rd/rdvisitor"
-require "rd/version"
+require 'cgi'
+require 'rd/rdvisitor'
+require 'rd/version'
 
 module RD
   class RD2HTMLVisitor < RDVisitor
@@ -17,11 +16,11 @@ module RD
     def self.version
       VERSION
     end
-    
+
     # must-have constants
     OUTPUT_SUFFIX = "html"
     INCLUDE_SUFFIX = ["html"]
-    
+
     METACHAR = { "<" => "&lt;", ">" => "&gt;", "&" => "&amp;" }
 
     attr_accessor :css
@@ -55,7 +54,7 @@ module RD
       @output_rbl = nil
       super
     end
-    
+
     def visit(tree)
       prepare_labels(tree, "label-")
       prepare_footnotes(tree)
@@ -110,7 +109,7 @@ module RD
       ret << forward_links + "\n" if forward_links
       ret << backward_links + "\n" if backward_links
       ret << %Q[</head>]
-    end 
+    end
     private :html_head
 
     def html_title
@@ -159,7 +158,7 @@ module RD
       %Q|<body>\n#{content}\n#{foottext}\n</body>|
     end
     private :html_body
-    
+
     def apply_to_Headline(element, title)
       anchor = get_anchor(element)
       label = hyphen_escape(element.label)
@@ -218,15 +217,15 @@ module RD
       end
       %Q[<pre>#{content.join("").chomp}</pre>]
     end
-  
+
     def apply_to_ItemList(element, items)
       %Q[<ul>\n#{items.join("\n").chomp}\n</ul>]
     end
-  
+
     def apply_to_EnumList(element, items)
       %Q[<ol>\n#{items.join("\n").chomp}\n</ol>]
     end
-    
+
     def apply_to_DescList(element, items)
       %Q[<dl>\n#{items.join("\n").chomp}\n</dl>]
     end
@@ -234,11 +233,11 @@ module RD
     def apply_to_MethodList(element, items)
       %Q[<dl>\n#{items.join("\n").chomp}\n</dl>]
     end
-    
+
     def apply_to_ItemListItem(element, content)
       %Q[<li>#{content.join("\n").chomp}</li>]
     end
-    
+
     def apply_to_EnumListItem(element, content)
       %Q[<li>#{content.join("\n").chomp}</li>]
     end
@@ -247,7 +246,7 @@ module RD
       listitem.children.size == 1 and listitem.children[0].is_a?(TextBlock)
     end
     private :consist_of_one_textblock?
-    
+
     def apply_to_DescListItem(element, term, description)
       anchor = get_anchor(element.term)
       label = hyphen_escape(element.label)
@@ -275,27 +274,27 @@ module RD
 	%Q[<dd>\n#{description.join("\n")}</dd>]
       end
     end
-  
+
     def apply_to_StringElement(element)
       apply_to_String(element.content)
     end
-    
+
     def apply_to_Emphasis(element, content)
       %Q[<em>#{content.join("")}</em>]
     end
-  
+
     def apply_to_Code(element, content)
       %Q[<code>#{content.join("")}</code>]
     end
-  
+
     def apply_to_Var(element, content)
       %Q[<var>#{content.join("")}</var>]
     end
-  
+
     def apply_to_Keyboard(element, content)
       %Q[<kbd>#{content.join("")}</kbd>]
     end
-  
+
     def apply_to_Index(element, content)
       tmp = []
       element.each do |i|
@@ -335,7 +334,7 @@ module RD
 	label = hyphen_escape(element.to_label)
 	%Q[<!-- Reference, RDLabel "#{label}" doesn't exist -->] +
 	  %Q[<em class="label-not-found">#{content}</em><!-- Reference end -->]
-	#' 
+	#'
       end
     end
 
@@ -350,11 +349,10 @@ module RD
 	%Q[<a href="#{filename}">#{content}</a>]
       end
     end
-    
+
     def apply_to_Footnote(element, content)
       num = get_footnote_num(element)
       raise ArgumentError, "[BUG?] #{element} is not registered." unless num
-      
       add_foottext(num, content)
       anchor = a_name("footmark", num)
       href = a_name("foottext", num)
@@ -395,7 +393,7 @@ module RD
 	footnotes[num - 1]
       @foottexts[num - 1] = foottext
     end
-    
+
     def apply_to_Verb(element)
       content = apply_to_String(element.content)
       %Q[#{content}]
@@ -405,23 +403,20 @@ module RD
       str.gsub(/\s/, "&nbsp;")
     end
     private :sp2nbsp
-    
+
     def apply_to_String(element)
       meta_char_escape(element)
     end
-    
+
     def parse_method(method)
       klass, kind, method, args = MethodParse.analize_method(method)
-      
       if kind == :function
 	klass = kind = nil
       else
 	kind = MethodParse.kind2str(kind)
       end
-      
       args.gsub!(/&?\w+;?/){ |m|
 	if /&\w+;/ =~ m then m else '<var>'+m+'</var>' end }
-
       case method
       when "self"
 	klass, kind, method, args = MethodParse.analize_method(args)
@@ -461,7 +456,7 @@ module RD
     def hyphen_escape(str)
       str.gsub(/--/, "&shy;&shy;")
     end
-    
+
     def make_foottext
       return nil if foottexts.empty?
       content = []
@@ -476,15 +471,8 @@ module RD
       "#{prefix}-#{num}"
     end
     private :a_name
-  end # RD2HTMLVisitor
-end # RD
+  end
+end
 
 $Visitor_Class = RD::RD2HTMLVisitor
 $RD2_Sub_OptionParser = "rd/rd2html-opt"
-
-=begin
-== script info.
- RD to HTML translate library for rdfmt.rb
- $Id: rd2html-lib.rb,v 1.53 2003/03/08 12:45:08 tosh Exp $
-
-=end
