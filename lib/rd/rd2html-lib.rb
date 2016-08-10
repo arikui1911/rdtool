@@ -152,49 +152,41 @@ module RD
       anchor = get_anchor(element)
       label = hyphen_escape(element.label)
       title = title.join("")
-      %Q[<h#{element.level}><a name="#{anchor}" id="#{anchor}">#{title}</a></h#{element.level}><!-- RDLabel: "#{label}" -->]
+      ["<h#{element.level}>",
+       %Q`<a name="#{anchor}" id="#{anchor}">#{title}</a>`,
+       "</h#{element.level}>",
+       %Q`<!-- RDLabel: "#{label}" -->`].join
     end
 
     def apply_to_TextBlock(element, content)
-      content = content.join("")
-      if (is_this_textblock_only_one_block_of_parent_listitem?(element) or
-	  is_this_textblock_only_one_block_other_than_sublists_in_parent_listitem?(element))
-	content.chomp
+      content = content.join("").chomp
+      if ptag_omittable_about_first_textblock_of_listitem?(element)
+	content
       else
-	%Q[<p>#{content.chomp}</p>]
+	%Q`<p>#{content}</p>`
       end
     end
 
-    def is_this_textblock_only_one_block_of_parent_listitem?(element)
-      parent = element.parent
-      (parent.is_a?(ItemListItem) or
-       parent.is_a?(EnumListItem) or
-       parent.is_a?(DescListItem) or
-       parent.is_a?(MethodListItem)) and
-	consist_of_one_textblock?(parent)
+    private
+
+    def ptag_omittable_about_first_textblock_of_listitem?(element)
+      return false unless listitem?(element.parent)
+      children = element.parent.children
+      return true if children.empty?
+      return false unless children.first.kind_of?(TextBlock)
+      children.drop(1).all?{|e| e.kind_of? List }
     end
 
-    def is_this_textblock_only_one_block_other_than_sublists_in_parent_listitem?(element)
-      parent = element.parent
-      (parent.is_a?(ItemListItem) or
-       parent.is_a?(EnumListItem) or
-       parent.is_a?(DescListItem) or
-       parent.is_a?(MethodListItem)) and
-	consist_of_one_textblock_and_sublists(element.parent)
-    end
-
-    def consist_of_one_textblock_and_sublists(element)
-      i = 0
-      element.each_child do |child|
-	if i == 0
-	  return false unless child.is_a?(TextBlock)
-	else
-	  return false unless child.is_a?(List)
-	end
-	i += 1
+    def listitem?(element)
+      case element
+      when ItemListItem, EnumListItem, DescListItem, MethodListItem
+        true
+      else
+        false
       end
-      return true
     end
+
+    public
 
     def apply_to_Verbatim(element)
       content = []
@@ -227,11 +219,6 @@ module RD
     def apply_to_EnumListItem(element, content)
       %Q[<li>#{content.join("\n").chomp}</li>]
     end
-
-    def consist_of_one_textblock?(listitem)
-      listitem.children.size == 1 and listitem.children[0].is_a?(TextBlock)
-    end
-    private :consist_of_one_textblock?
 
     def apply_to_DescListItem(element, term, description)
       anchor = get_anchor(element.term)
