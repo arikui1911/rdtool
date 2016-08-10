@@ -45,11 +45,8 @@ module RD
       @title = nil
       @html_link_rel = {}
       @html_link_rev = {}
-
       @footnotes = []
       @index = {}
-
-      #      @use_old_anchor = nil
       @use_old_anchor = true # MUST -> nil
       @output_rbl = nil
       super
@@ -64,110 +61,99 @@ module RD
     end
 
     def apply_to_DocumentElement(element, content)
-      ret = ""
-      ret << xml_decl + "\n"
-      ret << doctype_decl + "\n"
-      ret << html_open_tag + "\n"
-      ret << html_head + "\n"
-      ret << html_body(content) + "\n"
-      ret << "</html>\n"
-      ret
+      [xml_decl(),
+       doctype_decl(),
+       html_open_tag(),
+       html_head(),
+       html_body(content),
+       "</html>", ''].join("\n")
     end
+
+    private
 
     def document_title
-      return @title if @title
-      return @filename if @filename
-      return @input_filename unless @input_filename == "-"
-      "Untitled"
+      @title || @filename || document_title_by_input_filename() || 'Untitled'
     end
-    private :document_title
+
+    def document_title_by_input_filename
+      @input_filename == '-' ? nil : @input_filename
+    end
 
     def xml_decl
-      encoding = %[encoding="#{@charset}" ] if @charset
-      %|<?xml version="1.0" #{encoding}?>|
+      buf = ['xml', 'version="1.0"']
+      buf << %Q`encoding="#{@charset}"` if @charset
+      "<?#{buf.join ' '} ?>"
     end
-    private :xml_decl
+
+    DOCTYPE = <<-EOS
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+    EOS
 
     def doctype_decl
-      %|<!DOCTYPE html \n| +
-      %|  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"\n| +
-      %|  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">|
+      DOCTYPE
     end
-    private :doctype_decl
 
     def html_open_tag
-      lang_attr = %[ lang="#{@lang}" xml:lang="#{@lang}"] if @lang
-      %|<html xmlns="http://www.w3.org/1999/xhtml"#{lang_attr}>|
+      buf = ['html', 'xmlns="http://www.w3.org/1999/xhtml"']
+      if @lang
+        buf.push %Q`lang="#{@lang}"`, %Q`xml:lang="#{@lang}"`
+      end
+      "<#{buf.join ' '}>"
     end
-    private :html_open_tag
 
     def html_head
-      ret = %|<head>\n|
-      ret << html_content_type + "\n" if html_content_type
-      ret << html_title + "\n"
-      ret << link_to_css + "\n" if link_to_css
-      ret << forward_links + "\n" if forward_links
-      ret << backward_links + "\n" if backward_links
-      ret << %Q[</head>]
+      ['<head>',
+       html_content_type(),
+       html_title(),
+       link_to_css(),
+       forward_links(),
+       backward_links(),
+       '</head>'].compact.join("\n")
     end
-    private :html_head
-
-    def html_title
-      "<title>#{document_title}</title>"
-    end
-    private :html_title
 
     def html_content_type
-      if @charset
-	%Q[<meta http-equiv="Content-type" ] +
-	  %Q[content="text/html; charset=#{@charset}" ] +
-	  "/>"
-      end
+      return nil unless @charset
+      %Q`<meta http-equiv="Content-type" content="text/html; charset=#{@charset}" />`
     end
-    private :html_content_type
+
+    def html_title
+      "<title>#{document_title()}</title>"
+    end
 
     def link_to_css
-      if @css
-	%|<link href="#{@css}" type="text/css" rel="stylesheet" | +
-	  "/>" # for ruby-mode.el fontlock, it is separated into 2 lines.
-      end
+      return nil unless @css
+      %Q`<link href="#{@css}" type="text/css" rel="stylesheet" />`
     end
-    private :link_to_css
 
     def forward_links
-      return nil if @html_link_rel.empty?
-      rels = @html_link_rel.sort{|i, j| i[0] <=> j[0] }
-      (rels.collect do |rel, href|
-	%Q[<link href="#{href}" rel="#{rel}" />]
-      end).join("\n")
+      header_links @html_link_rel, 'rel'
     end
-    private :forward_links
 
     def backward_links
-      return nil if @html_link_rev.empty?
-      revs = @html_link_rev.sort{|i, j| i[0] <=> j[0] }
-      (revs.collect do |rev, href|
-	%Q[<link href="#{href}" rev="#{rev}" />]
-      end).join("\n")
+      header_links @html_link_rev, 'rev'
     end
-    private :backward_links
+
+    def header_links(list, attr)
+      return nil if list.empty?
+      list.sort_by(&:first).map{|val, href|
+	%Q`<link href="#{href}" #{attr}="#{val}" />`
+      }.join("\n")
+    end
 
     def html_body(contents)
-      content = contents.join("\n")
-      foottext = make_foottext
-      %Q|<body>\n#{content}\n#{foottext}\n</body>|
+      ['<body>', *contents, make_foottext(), '</body>'].compact.join("\n")
     end
-    private :html_body
+
+    public
 
     def apply_to_Headline(element, title)
       anchor = get_anchor(element)
       label = hyphen_escape(element.label)
       title = title.join("")
-      %Q[<h#{element.level}><a name="#{anchor}" id="#{anchor}">#{title}</a>] +
-      %Q[</h#{element.level}><!-- RDLabel: "#{label}" -->]
+      %Q[<h#{element.level}><a name="#{anchor}" id="#{anchor}">#{title}</a></h#{element.level}><!-- RDLabel: "#{label}" -->]
     end
-
-    # RDVisitor#apply_to_Include 
 
     def apply_to_TextBlock(element, content)
       content = content.join("")
